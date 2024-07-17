@@ -1,10 +1,13 @@
 import MaxWidthWrapper from "@/components/MaxWidthWrapper";
-import { ArrowRight } from "lucide-react";
+import { LogIn } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import Link from "next/link";
 import Image from 'next/image'
+import { auth } from "@clerk/nextjs/server";
 
-export default function Home() {
+export default async function Home() {
+  const {userId} = await auth()
+  const isAuth = !!userId
   return (
     <MaxWidthWrapper className="mb-12 mt-28 sm:mt-40 flex flex-col items-center justify-center text-center">
       <div className="mx-auto mb-4 max-w-fit flex items-center justify-center space-x-2 overflow-hidden rounded-full border border-gray-200 bg-white px-7 py-2 shadow-md backdrop-blur transition-all hover:border-gray-300 hover:bg-white/50">
@@ -20,16 +23,18 @@ export default function Home() {
         Quill allows you to have any converstions with your PDF document. Simply
         upload your file and start asking questions right away.
       </p>
-      <Link
-        className={buttonVariants({
-          size: "lg",
-          className: "mt-5",
-        })}
-        href="/dashboard"
-        target="_blank"
-      >
-        Get Started <ArrowRight className="ml-2 h-5 w-5" />
-      </Link>
+      {
+        !isAuth && 
+          <Link
+            className={buttonVariants({
+              size: "lg",
+              className: "mt-5",
+            })}
+            href="/sign-in"
+          >
+            Login to Get Started <LogIn className="ml-2 h-5 w-5" />
+          </Link>
+      }
 
        {/* value proposition section */}
        <div className="">

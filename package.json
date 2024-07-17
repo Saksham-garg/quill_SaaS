@@ -20,6 +20,8 @@
     "@trpc/server": "^11.0.0-rc.465",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
+    "dotenv": "^16.4.5",
+    "drizzle-kit": "^0.23.0",
     "drizzle-orm": "^0.32.0",
     "lucide-react": "^0.407.0",
     "next": "14.2.5",

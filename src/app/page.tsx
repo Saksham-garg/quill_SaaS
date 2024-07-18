@@ -4,6 +4,7 @@ import { buttonVariants } from "@/components/ui/button";
 import Link from "next/link";
 import Image from 'next/image'
 import { auth } from "@clerk/nextjs/server";
+import FileUpload from "@/components/ui/FileUpload";
 
 export default async function Home() {
   const {userId} = await auth()
@@ -34,6 +35,11 @@ export default async function Home() {
           >
             Login to Get Started <LogIn className="ml-2 h-5 w-5" />
           </Link>
+      }
+      {
+        isAuth && (
+          <FileUpload />
+        )
       }
 
        {/* value proposition section */}

@@ -4,6 +4,8 @@ import "./globals.css";
 import { cn } from "@/lib/utils";
 import Navbar from "@/components/Navbar";
 import { ClerkProvider } from '@clerk/nextjs'
+import Providers from "@/components/ui/Provider";
+import { Toaster } from 'react-hot-toast'
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -19,17 +21,20 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider> 
-      <html lang="en">
-        <body
-          className={cn(
-            "min-h-screen font- sans antialiased grainy",
-            inter.className
-            )}
-            >
-          <Navbar />
-          {children}
-        </body>
-      </html>
+      <Providers>
+        <html lang="en">
+          <body
+            className={cn(
+              "min-h-screen font- sans antialiased grainy",
+              inter.className
+              )}
+              >
+            <Toaster />
+            <Navbar />
+            {children}
+          </body>
+        </html>
+      </Providers>
     </ClerkProvider>
   );
 }

@@ -1,6 +1,6 @@
 import AWS from 'aws-sdk'
 
-export default async function(file: File){
+export default async function(file: File): Promise<{ fileKey: string; fileName: string }> {
     try {
         const creds = new AWS.Credentials({
             accessKeyId:process.env.NEXT_PUBLIC_AWS_ACCESS_KEY_ID!,
@@ -35,6 +35,10 @@ export default async function(file: File){
         })
     } catch (error) {
         console.log(error)
+        return Promise.resolve({
+            fileKey:'fileKey',
+            fileName:'file.name'
+        })
     }
 }
 

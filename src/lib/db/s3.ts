@@ -1,19 +1,15 @@
-import AWS from 'aws-sdk'
-
+import { PutObjectCommandOutput, S3 } from "@aws-sdk/client-s3";
 export default async function(file: File): Promise<{ fileKey: string; fileName: string }> {
+    return new Promise((resolve, reject) => {
     try {
-        const creds = new AWS.Credentials({
-            accessKeyId:process.env.NEXT_PUBLIC_AWS_ACCESS_KEY_ID!,
-            secretAccessKey:process.env.NEXT_PUBLIC_AWS_SECRET_ACCESS_KEY!
-        })
-        
-        const s3 = new AWS.S3({
-            credentials:creds,
-            params:{
-                Bucket:process.env.NEXT_PUBLIC_AWS_S3_BUCKET_NAME,
+        const s3 = new S3({
+            credentials:{
+                accessKeyId:process.env.NEXT_PUBLIC_AWS_ACCESS_KEY_ID!,
+                secretAccessKey:process.env.NEXT_PUBLIC_AWS_SECRET_ACCESS_KEY!
             },
             region:'eu-north-1'
         })
+        
         
         const fileKey = 'uploads/' + new Date().toString() + file.name.replace(' ','-')
         
@@ -22,24 +18,20 @@ export default async function(file: File): Promise<{ fileKey: string; fileName: 
             Key: fileKey,
             Body:file
         }
-        const uplaod = s3.putObject(params).on('httpUploadProgress',(event) => {
-            console.log("Uplaoding to s3...",parseInt(((event.loaded * 100)/event.total).toString())) + '%'
-        }).promise()
-
-        await uplaod.then((data:any) => {
-            console.log("Uplaoded to S3",data)
-        })
-        return Promise.resolve({
-            fileKey:fileKey,
-            fileName:file.name
-        })
+     
+        s3.putObject(
+            params,
+            (err: any, data: PutObjectCommandOutput | undefined) => {
+              return resolve({
+                fileKey,
+                fileName: file.name,
+              });
+            }
+          );
     } catch (error) {
-        console.log(error)
-        return Promise.resolve({
-            fileKey:'fileKey',
-            fileName:'file.name'
-        })
+        reject(error);
     }
+})
 }
 
 

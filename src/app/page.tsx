@@ -38,7 +38,9 @@ export default async function Home() {
       }
       {
         isAuth && (
-          <FileUpload />
+          <div className="w-full mt-10">
+            <FileUpload />
+          </div>
         )
       }
 

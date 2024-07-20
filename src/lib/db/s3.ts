@@ -11,7 +11,7 @@ export default async function(file: File): Promise<{ fileKey: string; fileName: 
         })
         
         
-        const fileKey = 'uploads/' + new Date().toString() + file.name.replace(' ','-')
+        const fileKey = "uploads/" + Date.now().toString() + file.name.replace(" ", "-");
         
         const params = {
             Bucket:process.env.NEXT_PUBLIC_AWS_S3_BUCKET_NAME!,

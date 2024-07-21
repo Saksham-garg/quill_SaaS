@@ -2,7 +2,7 @@ import { Configuration, OpenAIApi } from "openai-edge";
 import { Message, OpenAIStream, StreamingTextResponse } from "ai";
 import { getContext } from "@/lib/context";
 import { db } from "@/lib/db";
-import { chats } from "@/lib/db/schema";
+import { chats, messages as _messages } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 const config = new Configuration({
@@ -18,6 +18,7 @@ export async function POST(req: Request){
 
 
         const Chats = await db.select().from(chats).where(eq(chats.id,chatId))
+        console.log(Chats)
         if (Chats.length != 1) {
             return NextResponse.json({ error: "chat not found" }, { status: 404 });
           }
@@ -48,9 +49,27 @@ export async function POST(req: Request){
             },
             stream:true
         })
-        const stream = OpenAIStream(response)
+        const stream = OpenAIStream(response,{
+            onStart: async() => {
+                await db.insert(_messages).values({
+                    chatId,
+                    content:lastMessage,
+                    role:'user'
+                })
+            },
+            onCompletion: async(completion) => {
+                await db.insert(_messages).values({
+                    chatId,
+                    content:completion,
+                    role:'system'
+                })
+            }
+        })
         return new StreamingTextResponse(stream)
     } catch (error) {
         console.log(error)
+        return NextResponse.json({
+            error:error
+        },{status:500})
     }
 }

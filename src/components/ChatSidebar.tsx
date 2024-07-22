@@ -1,18 +1,23 @@
 "use client"
 
-import React from 'react'
+import React, { useState } from 'react'
 import { DrizzleChats } from '@/lib/db/schema'
 import Link from 'next/link'
 import { Button } from './ui/button'
 import { MessageCircle, PlusCircle } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import axios from 'axios'
+import toast from 'react-hot-toast'
+import SubscriptionButton from './ui/SubscriptionButton'
 
 type Props = {
     chats:DrizzleChats[],
-    chatsId: number
+    chatsId: number,
+    isPro: boolean
 }
 
-const ChatSidebar = ({chats,chatsId}: Props) => {
+const ChatSidebar = ({chats,chatsId,isPro}: Props) => {
+
   return (
     <div className='w-full h-screen p-4 text-gray-200 bg-gray-900'>
         <Link href="/">
@@ -45,6 +50,7 @@ const ChatSidebar = ({chats,chatsId}: Props) => {
                 <Link href="/">Home</Link>
                 <Link href="/">Source</Link>
             </div>
+            <SubscriptionButton isPro={isPro}></SubscriptionButton>
         </div>
     </div>
   )

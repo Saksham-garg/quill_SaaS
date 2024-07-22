@@ -1,14 +1,27 @@
 import MaxWidthWrapper from "@/components/MaxWidthWrapper";
-import { LogIn } from "lucide-react";
-import { buttonVariants } from "@/components/ui/button";
+import { ArrowRight, LogIn } from "lucide-react";
+import { Button, buttonVariants } from "@/components/ui/button";
 import Link from "next/link";
 import Image from 'next/image'
 import { auth } from "@clerk/nextjs/server";
 import FileUpload from "@/components/ui/FileUpload";
+import { checkSubscription } from "@/lib/subscription";
+import { db } from "@/lib/db";
+import { chats } from "@/lib/db/schema";
+import { eq } from "drizzle-orm";
+import SubscriptionButton from "@/components/ui/SubscriptionButton";
 
 export default async function Home() {
   const {userId} = await auth()
   const isAuth = !!userId
+  let isPro = await checkSubscription()
+  let firstChat;
+  if(userId){
+    firstChat = await db.select().from(chats).where(eq(chats.userId,userId))
+    if(firstChat){
+      firstChat = firstChat[0]
+    }
+  }
   return (
     <MaxWidthWrapper className="mb-12 mt-28 sm:mt-40 flex flex-col items-center justify-center text-center">
       <div className="mx-auto mb-4 max-w-fit flex items-center justify-center space-x-2 overflow-hidden rounded-full border border-gray-200 bg-white px-7 py-2 shadow-md backdrop-blur transition-all hover:border-gray-300 hover:bg-white/50">
@@ -25,7 +38,7 @@ export default async function Home() {
         upload your file and start asking questions right away.
       </p>
       {
-        !isAuth && 
+        isAuth && 
           <Link
             className={buttonVariants({
               size: "lg",
@@ -36,6 +49,21 @@ export default async function Home() {
             Login to Get Started <LogIn className="ml-2 h-5 w-5" />
           </Link>
       }
+      <div className="flex mt-5">
+          {
+            firstChat && isAuth && (
+              <Link href={`/chat/${firstChat.id}`}>
+                <Button>
+                  Go to Chats
+                  <ArrowRight className="ml-2"/>
+                </Button>
+              </Link>
+            )
+          }
+          <div className="ml-3">
+            <SubscriptionButton isPro={isPro}></SubscriptionButton>
+          </div>
+      </div>
       {
         isAuth && (
           <div className="w-full mt-10">

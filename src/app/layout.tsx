@@ -6,6 +6,8 @@ import Navbar from "@/components/Navbar";
 import { ClerkProvider } from '@clerk/nextjs'
 import Providers from "@/components/ui/Provider";
 import { Toaster } from 'react-hot-toast'
+import { Suspense } from "react";
+import Loader from "@/components/ui/Loader";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -31,7 +33,9 @@ export default function RootLayout({
               >
             <Toaster />
             <Navbar />
-            {children}
+            <Suspense fallback={<Loader />}>
+              {children}
+            </Suspense>
           </body>
         </html>
       </Providers>

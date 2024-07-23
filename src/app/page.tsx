@@ -38,7 +38,7 @@ export default async function Home() {
         upload your file and start asking questions right away.
       </p>
       {
-        isAuth && 
+        !isAuth && 
           <Link
             className={buttonVariants({
               size: "lg",

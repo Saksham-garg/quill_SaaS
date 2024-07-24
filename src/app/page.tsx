@@ -60,9 +60,13 @@ export default async function Home() {
               </Link>
             )
           }
-          <div className="ml-3">
-            <SubscriptionButton isPro={isPro}></SubscriptionButton>
-          </div>
+          {
+            isAuth && (
+              <div className="ml-3">
+                <SubscriptionButton isPro={isPro}></SubscriptionButton>
+              </div>
+            )
+          }
       </div>
       {
         isAuth && (

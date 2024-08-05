@@ -6,8 +6,7 @@ import { chats, messages as _messages } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 const config = new Configuration({
-    apiKey:process.env.NEXT_PUBLIC_OPENAI_API_KEY!,
-    basePath:'http://localhost:3040/v1'
+    apiKey:process.env.NEXT_PUBLIC_OPENAI_API_KEY!
 })
 export const runtime = 'edge'
 const openai = new OpenAIApi(config)
@@ -18,7 +17,7 @@ export async function POST(req: Request){
 
 
         const Chats = await db.select().from(chats).where(eq(chats.id,chatId))
-        console.log(Chats)
+        console.log("Chats",Chats)
         if (Chats.length != 1) {
             return NextResponse.json({ error: "chat not found" }, { status: 404 });
           }
@@ -43,17 +42,17 @@ export async function POST(req: Request){
       
         const response = await openai.createChatCompletion({
             model:'gpt-3.5-turbo',
-            messages:{
+            messages:[
                 prompt,
                 ...messages.filter((message: Message) => message.role == 'user')
-            },
+            ],
             stream:true
         })
         const stream = OpenAIStream(response,{
             onStart: async() => {
                 await db.insert(_messages).values({
                     chatId,
-                    content:lastMessage,
+                    content:lastMessage.content,
                     role:'user'
                 })
             },

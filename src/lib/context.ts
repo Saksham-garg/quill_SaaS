@@ -3,7 +3,7 @@ import { convertIntoAscii } from './utils';
 import { getEmbeddings } from './embeddings';
 
 const pc = new Pinecone({
-  apiKey: 'your_api_key',
+  apiKey: process.env.PINECONE_DB_API_KEY!,
 });
 export async function getEmbeddingsFromDB(embeddings:number[],fileKey:string){
     const pinecone = new Pinecone({

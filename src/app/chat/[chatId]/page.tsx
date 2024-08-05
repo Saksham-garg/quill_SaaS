@@ -1,13 +1,15 @@
 import ChatComponent from '@/components/ChatComponent'
 import ChatSidebar from '@/components/ChatSidebar'
 import PDFViewer from '@/components/PDFViewer'
+import { Button } from '@/components/ui/button'
 import { db } from '@/lib/db'
 import { chats } from '@/lib/db/schema'
 import { checkSubscription } from '@/lib/subscription'
 import { auth } from '@clerk/nextjs/server'
 import { eq } from 'drizzle-orm'
 import { redirect } from 'next/navigation'
-import React from 'react'
+import HamburgerMenu from '@/components/HamburgerMenu'
+
 
 type Props = {
     params: {
@@ -36,20 +38,22 @@ const ChatPage = async ({params:{chatId}}: Props) => {
     const isPro = await checkSubscription()
   return (
     <div className='max-w-screen overflow-scroll'>
-        <div className="flex max-w-screen overflow-scroll">
+        <div className="flex md:flex-row flex-col max-w-screen overflow-scroll">
                 
             {/* Chats Sidebar  */}
-            <div className="flex-[1] max-x-xs">
+            <div className="lg:flex-[1
+            ] max-x-xs hidden lg:flex">
                 <ChatSidebar chats={_chats} chatsId={parseInt(chatId)} isPro={isPro}/>
             </div>
 
             {/* PDF Viewer  */}
-            <div className="flex-[5] max-h-screen p-4 overflow-scroll">
+            <div className="lg:flex-[5] md:flex-1 h-[65vh] sm:h-screen md:max-h-screen p-4 overflow-scroll">
+                <HamburgerMenu chats={_chats} chatsId={parseInt(chatId)} isPro={isPro}/>
                 <PDFViewer pdfUrl={currentChat?.pdfUrl || ''} />
             </div>
             
             {/* Chats Panel  */}
-            <div className="flex-[3] border-l border-l-slate-200">
+            <div className="lg:flex-[3] md:flex-1 border-l  border-l-slate-200">
               <ChatComponent chatId={parseInt(chatId)}/>
             </div>
         </div>

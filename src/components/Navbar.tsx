@@ -3,6 +3,7 @@ import MaxWidthWrapper from "./MaxWidthWrapper";
 import Link from "next/link";
 import { Button, buttonVariants } from "./ui/button";
 import { ClerkLoaded, ClerkLoading, UserButton, useUser } from "@clerk/nextjs";
+import { AlignJustify } from "lucide-react";
 
 const Navbar = () => {
   const { user } = useUser()

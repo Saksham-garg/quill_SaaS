@@ -39,8 +39,8 @@ export default async function loadS3IntoPinecone(fileKey:string){
       const vectors = await Promise.all(documents.flat().map(getDocumentEmbeddings))
 
       // 4.  Upload to pinecone db
-      const client = getPineconeClient()
-      const pineconeIndex = client.index('quill-chatpdf')
+      const client =  await getPineconeClient()
+      const pineconeIndex = await client.index('quill-chatpdf')
       const namespace = pineconeIndex.namespace(convertIntoAscii(fileKey))
 
 
@@ -81,7 +81,7 @@ async function prepareDocuments(page: PageProps){
   pageContent = pageContent.replace(/\n/g,'')
 
   const splitter = new RecursiveCharacterTextSplitter()
-  const docs = splitter.splitDocuments([
+  const docs = await splitter.splitDocuments([
     new Document({
       pageContent,
       metadata:{

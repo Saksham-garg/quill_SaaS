@@ -93,3 +93,14 @@ async function prepareDocuments(page: PageProps){
 
   return docs
 }
+
+export async function deleteDocuments(fileKey:string){
+    try {
+      const client =  await getPineconeClient()
+      const pineconeIndex = await client.index('quill-chatpdf')
+      const namespace = pineconeIndex.namespace(convertIntoAscii(fileKey))
+      
+    } catch (error) {
+      console.log(error)
+    }
+}

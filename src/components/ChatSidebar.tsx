@@ -19,119 +19,138 @@ import {
     DialogFooter,
     DialogTrigger,
     DialogClose
-  } from "./dialog"
+} from "./dialog"
 import { useMutation } from '@tanstack/react-query'
-import { db } from '@/lib/db'
-import { auth } from '@clerk/nextjs/server'
-import { eq } from 'drizzle-orm'
-import { chats } from "@/lib/db/schema";
 import { useRouter } from 'next/navigation'
 
 type Props = {
-    chats:DrizzleChats[],
+    chats: DrizzleChats[],
     chatsId: number,
-    isPro: boolean
+    isPro: boolean,
+    userId: string
 }
 
 
-const ChatSidebar = ({chats:Chats,chatsId,isPro}: Props) => {
-    
+const ChatSidebar = ({ chats: Chats, chatsId, isPro, userId }: Props) => {
+    const [open, setOpen] = useState(false);
+    const [deleteChatDetails, setDeleteChatDetails] = useState<DrizzleChats | null>(null)
     const router = useRouter()
-    const { userId } = auth()
-    let firstChat;
-    if(userId){
-        firstChat = await db.select().from(chats).where(eq(chats.userId,userId))
-        if(firstChat){
+
+    let firstChat: any;
+    console.log(userId)
+    if (userId) {
+        firstChat = Chats
+        if (firstChat) {
             firstChat = firstChat[0]
         }
     }
-    }
+
     const { mutate } = useMutation({
-        mutationFn: async({chatId}:{chatId:number}) => {
+        mutationFn: async ({ chat, firstChat }: { chat: DrizzleChats | null, firstChat: object }) => {
             try {
-                const response = await axios.delete(`/api/delete-chat/${chatId}`)
+                console.log("chatId", chat)
+                const response = await axios.delete(`/api/delete-chat/${chat?.id}`, {
+                    data: {
+                        "fileKey": chat?.fileKey,
+                        "fileName": chat?.pdfName
+                    }
+                })
                 return response.data
-            } catch (error:any) {
+            } catch (error: any) {
                 toast.error(error.response)
             }
         }
     })
 
-    const deleteChat = (chat:{chatId:number,firstChat:number,router:AppRouterInstance}) => {
-        mutate(chat,
-            {
-                onError:(err) => {
-                    console.log("err",err)
-                    toast.error(err.message)
-                },
-                onSuccess:() => {
-                    toast.success("Chats created successfully.")
-                    chat.router.push(`/chat/${chat.firstChat?.id}`)
+    const deleteChat = (chat: { chat: DrizzleChats | null }) => {
+        try {
+            setDeleteChatDetails(chat.chat)
+            mutate({ chat: deleteChatDetails, firstChat },
+                {
+                    onError: (err) => {
+                        console.log("err", err)
+                        // toast.error(err.message)
+                    },
+                    onSuccess: () => {
+                        toast.success("Chats created successfully.")
+                        // chat.router.push(`/chat/${chat.firstChat?.id}`)
+                    }
                 }
-            }
             )
+        } catch (error) {
+            console.log(error)
+        }
     }
-    
-  return (
-    <div className='w-full h-screen p-4 text-gray-200 bg-gray-900'>
-        <Link href="/">
-            <Button className='w-full border-dashed border-white border'>
-                <PlusCircle  className='mr-2 w-4 h-4'/>
-                New Chat
-            </Button>
-        </Link>
-        
-        <div className="flex max-h-screen overflow-scroll pb-20 flex-col gap-2 mt-4">
-            {
-                chats.map((chat) => {
-                    return <div className={cn("rounded-lg p-3 text-slate-300 flex justify-between items-center gap-1",{
-                        "bg-blue-800 text-white":chat.id == chatsId,
-                        "hover:text-white":chat.id !== chatsId
-                    })}>
-                            <Link  key={chat.id} href={`/chat/${chat.id}`}>
-                                <div className={cn("rounded-lg text-slate-300 flex items-center")}>
-                                    <MessageCircle className='mr-2' />
-                                    <p className='w-full overflow-hidden text-sm truncate whitespace-nowrap text-ellipsis'>
-                                        {chat.pdfName}
-                                    </p>
-                                </div>
-                            </Link>
-                            <Dialog>
-                                <DialogTrigger>
-                                        <Trash2 className='cursor-pointer'/>
-                                </DialogTrigger>
-                                <DialogContent className="sm:max-w-[425px]">
-                                    <DialogHeader>
-                                    <DialogTitle>Are you absolutely sure?</DialogTitle>
-                                    <DialogDescription>
-                                       <p className='mt-3'>
-                                       This action cannot be undone. This will permanently delete <span className='font-bold'>{chat.pdfName} </span> PDF data, chats and remove this data from our servers.
-                                       </p>
-                                    </DialogDescription>
-                                    </DialogHeader>
-                                       <DialogFooter>
-                                        <DialogClose asChild>
-                                            <Button type="button" variant="secondary">Cancel</Button>
-                                        </DialogClose>
-                                            <Button type="submit" onSubmit={() => deleteChat(chat.id)}>Delete</Button>
-                                        </DialogFooter>
-                                </DialogContent>
-                            </Dialog>
-                    </div>
-                    
-                })  
-            }
-        </div>
 
-        <div className="absolute bottom-4 left-4">
-            <div className="flex items-center gap-2 text-sm text-slate-500 flex-wrap">
-                <Link href="/">Home</Link>
-                <Link href="/">Source</Link>
+    return (
+        <>
+            <div className='w-full h-screen p-4 text-gray-200 bg-gray-900'>
+                <Link href="/">
+                    <Button className='w-full border-dashed border-white border'>
+                        <PlusCircle className='mr-2 w-4 h-4' />
+                        New Chat
+                    </Button>
+                </Link>
+
+                <Dialog open={open} onOpenChange={setOpen}>
+                    <DialogContent className="sm:max-w-[425px]">
+                        <DialogHeader>
+                            <DialogTitle>Are you absolutely sure?</DialogTitle>
+                            <DialogDescription asChild>
+                                <p className='mt-3'>
+                                    This action cannot be undone. This will permanently delete <span className='font-bold'>{deleteChatDetails?.pdfName} </span> PDF data, chats and remove this data from our servers.
+                                </p>
+                            </DialogDescription>
+                        </DialogHeader>
+                        <DialogTrigger>
+
+                        </DialogTrigger>
+                        <DialogFooter>
+                            <DialogClose asChild>
+                                <Button type="button" variant="secondary">Cancel</Button>
+                            </DialogClose>
+                            <Button type="submit" onClick={() => deleteChat({ chat: deleteChatDetails })}>Delete</Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+                <div className="flex max-h-screen overflow-scroll pb-20 flex-col gap-2 mt-4">
+                    {
+                        Chats.map((chat) => {
+                            return <div className={cn("rounded-lg p-3 text-slate-300 flex justify-between items-center gap-1", {
+                                "bg-blue-800 text-white": chat.id == chatsId,
+                                "hover:text-white": chat.id !== chatsId
+                            })} key={chat.id}>
+                                <Link href={`/chat/${chat.id}`}>
+                                    <div className="rounded-lg text-slate-300 flex items-center">
+                                        <MessageCircle className='mr-2' />
+                                        <p className='w-full overflow-hidden text-sm truncate whitespace-nowrap text-ellipsis'>
+                                            {chat.pdfName}
+                                        </p>
+                                    </div>
+                                </Link>
+                                <Trash2 className='cursor-pointer' onClick={() => {
+                                    setOpen(true)
+                                    setDeleteChatDetails(chat)
+                                }} />
+
+                            </div>
+
+                        })
+                    }
+                </div>
+
+
+
+                <div className="absolute bottom-4 left-4">
+                    <div className="flex items-center gap-2 text-sm text-slate-500 flex-wrap">
+                        <Link href="/">Home</Link>
+                        <Link href="/">Source</Link>
+                    </div>
+                    <SubscriptionButton isPro={isPro}></SubscriptionButton>
+                </div>
             </div>
-            <SubscriptionButton isPro={isPro}></SubscriptionButton>
-        </div>
-    </div>
-  )
+        </>
+    )
 }
 
 export default ChatSidebar

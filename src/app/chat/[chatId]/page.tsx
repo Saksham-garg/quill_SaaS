@@ -43,12 +43,12 @@ const ChatPage = async ({params:{chatId}}: Props) => {
             {/* Chats Sidebar  */}
             <div className="lg:flex-[1
             ] max-x-xs hidden lg:flex">
-                <ChatSidebar chats={_chats} chatsId={parseInt(chatId)} isPro={isPro}/>
+                <ChatSidebar chats={_chats} chatsId={parseInt(chatId)} isPro={isPro} userId={userId}/>
             </div>
 
             {/* PDF Viewer  */}
             <div className="lg:flex-[5] md:flex-1 h-[65vh] sm:h-screen md:max-h-screen p-4 overflow-scroll">
-                <HamburgerMenu chats={_chats} chatsId={parseInt(chatId)} isPro={isPro}/>
+                <HamburgerMenu chats={_chats} chatsId={parseInt(chatId)} isPro={isPro} userId={userId}/>
                 <PDFViewer pdfUrl={currentChat?.pdfUrl || ''} />
             </div>
             

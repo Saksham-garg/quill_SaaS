@@ -9,10 +9,11 @@ import { DrizzleChats } from '@/lib/db/schema'
 type Props = {
     chats:DrizzleChats[],
     chatsId: number,
-    isPro: boolean
+    isPro: boolean,
+    userId:string
 }
 
-const HamburgerMenu = ({chats,chatsId,isPro}:Props) => {
+const HamburgerMenu = ({chats,chatsId,isPro,userId}:Props) => {
     const [ showMenu , setShowMenu ] = useState(false)
   return (
     <>
@@ -35,7 +36,7 @@ const HamburgerMenu = ({chats,chatsId,isPro}:Props) => {
                 <aside className="fixed top-0 left-0 bottom-0  max-h-[100vh] pt-16 z-40 w-full opacity-30 transform duration-300 bg-white scroll-smooth overflow-y-auto" onClick={() => setShowMenu(!showMenu)}>
                 </aside>
                     <div className="fixed top-0 left-0 h-full max-w-xl z-50">
-                        <ChatSidebar chats={chats} chatsId={chatsId} isPro={isPro}/>
+                        <ChatSidebar chats={chats} chatsId={chatsId} isPro={isPro} userId={userId}/>
                     </div>
             </>
         )

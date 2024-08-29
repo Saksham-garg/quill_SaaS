@@ -1,6 +1,6 @@
-import { DeleteObjectCommandOutput, PutObjectCommandOutput, S3 } from "@aws-sdk/client-s3";
+import { DeleteObjectCommandOutput, S3 } from "@aws-sdk/client-s3";
 
-export async function deleteFromS3(fileKey:string): Promise<string | undefined>{
+export async function deleteFromS3(fileKey:string): Promise<DeleteObjectCommandOutput | undefined>{
     return new Promise(async (resolve, reject) => {
     try {
         const s3 = new S3({
@@ -15,7 +15,7 @@ export async function deleteFromS3(fileKey:string): Promise<string | undefined>{
             Bucket: process.env.NEXT_PUBLIC_AWS_S3_BUCKET_NAME!,
             Key:fileKey
         }
-
+        console.log(params)
         s3.deleteObject(params, function (err:any, data: DeleteObjectCommandOutput | undefined) {
             if (err) console.log(err);
             else{
